@@ -10,7 +10,7 @@ const getAiClient = (): GoogleGenAI => {
         if (!process.env.API_KEY) {
             throw new Error("API_KEY environment variable is not configured.");
         }
-        ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
     }
     return ai;
 };
