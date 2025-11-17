@@ -1,16 +1,15 @@
 import { GoogleGenAI, Chat } from "@google/genai";
 import { Language, ChatMessage } from "../types";
 
-// Fix: Initialize the AI client directly using process.env.API_KEY as per guidelines.
-// This avoids fetching the key from a backend server.
 let ai: GoogleGenAI | null = null;
 
 const getAiClient = (): GoogleGenAI => {
     if (!ai) {
+        // Fix: Use `process.env.API_KEY` to retrieve the API key as per the coding guidelines.
         if (!process.env.API_KEY) {
             throw new Error("API_KEY environment variable is not configured.");
         }
-        ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
+        ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     }
     return ai;
 };
@@ -25,7 +24,6 @@ const getModel = () => {
 
 const generateContent = async (prompt: string): Promise<string> => {
     try {
-        // Fix: Removed 'await' as getAiClient is now synchronous.
         const ai = getAiClient();
         const response = await ai.models.generateContent({
             model: getModel(),
@@ -144,7 +142,6 @@ ${commonPromptInstructions(language)}`;
 
 export const getChatResponse = async (history: ChatMessage[], newMessage: string, language: Language): Promise<string> => {
     try {
-        // Fix: Removed 'await' as getAiClient is now synchronous.
         const ai = getAiClient();
         if (!chat || chatLanguage !== language) {
             chatLanguage = language;
