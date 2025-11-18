@@ -1,26 +1,18 @@
-
 import { GoogleGenAI, Chat } from "@google/genai";
 import { Language, ChatMessage } from "../types";
 
-// This will hold the initialized client.
 let ai: GoogleGenAI | null = null;
 
 const getAiClient = (): GoogleGenAI => {
-    // If the client is already initialized, return it.
-    if (ai) {
-        return ai;
-    }
+    if (!ai) {
+        // Support both standard API_KEY (for development/Preview) and REACT_APP_API_KEY (for Netlify)
+        const apiKey = process.env.API_KEY || process.env.REACT_APP_API_KEY;
 
-    // Ensure the API key is available. This is the standard for frontend deployment.
-    // The hosting service (Vercel, Netlify, etc.) will inject this environment variable during the build process.
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) {
-        // This error will be caught by the calling functions and displayed to the user.
-        throw new Error("API_KEY environment variable not found. Please set it in your hosting provider's settings.");
+        if (!apiKey) {
+            throw new Error("API Key not found. Please ensure API_KEY or REACT_APP_API_KEY is set in your environment.");
+        }
+        ai = new GoogleGenAI({ apiKey });
     }
-
-    // Initialize the AI client with the key from the environment.
-    ai = new GoogleGenAI({ apiKey });
     return ai;
 };
 
@@ -34,16 +26,15 @@ const getModel = () => {
 
 const generateContent = async (prompt: string): Promise<string> => {
     try {
-        const aiClient = getAiClient();
-        const response = await aiClient.models.generateContent({
+        const ai = getAiClient();
+        const response = await ai.models.generateContent({
             model: getModel(),
             contents: prompt,
         });
         return response.text;
     } catch (error) {
         console.error("Error generating content:", error);
-        // Return the error message itself so it can be displayed in the UI
-        return error instanceof Error ? error.message : "Sorry, I couldn't generate a response.";
+        return "Sorry, I couldn't generate a response. Please check the server connection and API key configuration.";
     }
 };
 
@@ -153,11 +144,11 @@ ${commonPromptInstructions(language)}`;
 
 export const getChatResponse = async (history: ChatMessage[], newMessage: string, language: Language): Promise<string> => {
     try {
-        const aiClient = getAiClient();
+        const ai = getAiClient();
         if (!chat || chatLanguage !== language) {
             chatLanguage = language;
             // Start a new chat with the history from the UI
-            chat = aiClient.chats.create({
+            chat = ai.chats.create({
                 model: getModel(),
                 config: {
                     systemInstruction: `You are Sam Deeven’s AI music theory assistant.
@@ -182,8 +173,7 @@ ${commonPromptInstructions(language)}`,
         console.error("Error sending chat message:", error);
         chat = null; 
         chatLanguage = null;
-        // Return the error message itself so it can be displayed in the UI
-        return error instanceof Error ? error.message : "Sorry, I encountered an error. Please try starting the conversation again.";
+        return "Sorry, I encountered an error. Please try starting the conversation again.";
     }
 };
 

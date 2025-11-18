@@ -1,7 +1,7 @@
 import React from 'react';
 // Fix: Corrected react-router-dom import for v5 compatibility.
 import { NavLink } from 'react-router-dom';
-import { Home, Scale, Music, MessageCircle } from 'lucide-react';
+import { Home, Scale, Music, GitPullRequest } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 const BottomNav: React.FC = () => {
@@ -10,7 +10,7 @@ const BottomNav: React.FC = () => {
     { path: '/', label: text.home, icon: Home },
     { path: '/scales', label: text.scales, icon: Scale },
     { path: '/chords', label: text.chords, icon: Music },
-    { path: '/chat', label: text.chat, icon: MessageCircle },
+    { path: '/family-chords', label: text.familyChords, icon: GitPullRequest },
   ];
 
   return (

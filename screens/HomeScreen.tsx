@@ -12,11 +12,11 @@ const HomeScreen: React.FC = () => {
   const features = [
     { name: text.scales, path: '/scales', icon: Scale },
     { name: text.chords, path: '/chords', icon: Music },
-    { name: text.chat, path: '/chat', icon: MessageCircle },
+    // { name: text.chat, path: '/chat', icon: MessageCircle },
     { name: text.familyChords, path: '/family-chords', icon: GitPullRequest },
     { name: text.circleOfFifths, path: '/circle-of-fifths', icon: Circle },
     { name: text.progressions, path: '/progressions', icon: ListMusic },
-    { name: text.exercises, path: '/exercises', icon: BrainCircuit },
+    // { name: text.exercises, path: '/exercises', icon: BrainCircuit },
     { name: text.about, path: '/about', icon: Info },
     { name: text.contact, path: '/contact', icon: Mail },
   ];

@@ -1,6 +1,6 @@
 import React from 'react';
 import { HashRouter, Routes, Route, NavLink } from 'react-router-dom';
-import { Music, Scale, Circle, GitPullRequest, ListMusic, BrainCircuit, Home, MessageCircle, Info, Mail } from 'lucide-react';
+import { Music, Scale, Circle, GitPullRequest, ListMusic, Home, Info, Mail } from 'lucide-react';
 
 import HomeScreen from './screens/HomeScreen';
 import ScalesScreen from './screens/ScalesScreen';
@@ -8,8 +8,6 @@ import ChordsScreen from './screens/ChordsScreen';
 import FamilyChordsScreen from './screens/FamilyChordsScreen';
 import CircleOfFifthsScreen from './screens/CircleOfFifthsScreen';
 import ChordProgressionsScreen from './screens/ChordProgressionsScreen';
-import ExercisesScreen from './screens/ExercisesScreen';
-import ChatScreen from './screens/ChatScreen';
 import AboutScreen from './screens/AboutScreen';
 import ContactScreen from './screens/ContactScreen';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
@@ -28,8 +26,6 @@ const AppContent: React.FC = () => {
     { path: '/family-chords', label: text.familyChords, icon: GitPullRequest },
     { path: '/circle-of-fifths', label: text.circleOfFifths, icon: Circle },
     { path: '/progressions', label: text.progressions, icon: ListMusic },
-    { path: '/exercises', label: text.exercises, icon: BrainCircuit },
-    { path: '/chat', label: text.chat, icon: MessageCircle },
     { path: '/about', label: text.about, icon: Info },
     { path: '/contact', label: text.contact, icon: Mail },
   ];
@@ -75,8 +71,6 @@ const AppContent: React.FC = () => {
               <Route path="/family-chords" element={<FamilyChordsScreen />} />
               <Route path="/circle-of-fifths" element={<CircleOfFifthsScreen />} />
               <Route path="/progressions" element={<ChordProgressionsScreen />} />
-              <Route path="/exercises" element={<ExercisesScreen />} />
-              <Route path="/chat" element={<ChatScreen />} />
               <Route path="/about" element={<AboutScreen />} />
               <Route path="/contact" element={<ContactScreen />} />
             </Routes>

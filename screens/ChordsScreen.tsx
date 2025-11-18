@@ -1,9 +1,8 @@
-
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { CHORDS, ALL_NOTES_SHARP } from '../constants';
-import { generateChordInversions } from '../utils/musicTheory';
+import { CHORDS, ALL_NOTES_SHARP, PDF_THEORY_TEXT, NEW_PDF_THEORY, CHORD_DESCRIPTIONS } from '../constants';
+import { generateChordInversions, getRelativeKey } from '../utils/musicTheory';
 import PianoKeyboard from '../components/PianoKeyboard';
 import TransposeControl from '../components/TransposeControl';
 import ContentDisplay from '../components/ContentDisplay';
@@ -18,6 +17,7 @@ const ChordsScreen: React.FC = () => {
   const [selectedChordKey, setSelectedChordKey] = useState(searchParams.get('type') || Object.keys(CHORDS)[0]);
   const [selectedInversionIndex, setSelectedInversionIndex] = useState(0);
   const [explanation, setExplanation] = useState('');
+  const [showExplanation, setShowExplanation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const prevLangRef = useRef<Language | undefined>(undefined);
@@ -47,6 +47,18 @@ const ChordsScreen: React.FC = () => {
   const selectedChord = CHORDS[selectedChordKey as keyof typeof CHORDS];
   const chordInversions = useMemo(() => generateChordInversions(rootNote, selectedChord.intervals), [rootNote, selectedChord]);
 
+  // Relative Chord (Major <-> Minor)
+  const relativeChordName = getRelativeKey(rootNote, selectedChordKey);
+  const relativeChordDisplay = relativeChordName ? relativeChordName.replace('Scale', 'Chord') : null;
+
+  const handleGetExplanation = () => {
+      setShowExplanation(true);
+      // AI Call disabled as per request
+      /*
+      fetchExplanation();
+      */
+  };
+
   const fetchExplanation = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -69,6 +81,20 @@ const ChordsScreen: React.FC = () => {
   }, [language, explanation, isLoading, fetchExplanation]);
 
   const currentInversion = chordInversions[selectedInversionIndex];
+
+  // Determine dynamic theory text
+  let dynamicTheory = "";
+  const newTheory = NEW_PDF_THEORY[language].chords;
+  const theoryText = PDF_THEORY_TEXT[language].chords;
+  const description = CHORD_DESCRIPTIONS[language][selectedChordKey as keyof typeof CHORD_DESCRIPTIONS[typeof language]] || "";
+
+  if (selectedChordKey.includes('7')) {
+      dynamicTheory = newTheory.seventh;
+  } else if (selectedChordKey.includes('sus')) {
+      dynamicTheory = newTheory.sus;
+  } else if (selectedChordKey === 'major' || selectedChordKey === 'minor') {
+      dynamicTheory = newTheory.majorVsMinor;
+  }
 
   return (
     <div>
@@ -100,6 +126,11 @@ const ChordsScreen: React.FC = () => {
             <p className="text-lg font-mono tracking-widest">
                 {currentInversion?.notes.map(n => n.slice(0,-1)).join(' - ')}
             </p>
+            {relativeChordDisplay && (
+                 <p className="text-sm text-brand-text-muted mt-2 pt-2 border-t border-brand-surface/30">
+                     {text.relativeChord}: <span className="text-brand-text font-bold">{relativeChordDisplay}</span>
+                 </p>
+            )}
           </div>
         </div>
         
@@ -120,9 +151,22 @@ const ChordsScreen: React.FC = () => {
 
         <PianoKeyboard highlightedNotes={currentInversion?.notes || []} octaves={2} />
         
+        {showExplanation && (
+            <div className="mt-6 p-4 bg-brand-primary/30 rounded-lg border border-brand-primary space-y-3">
+                <div className="text-brand-text-muted text-sm space-y-2">
+                    <p>{description}</p>
+                    <p>{theoryText.relationship}</p>
+                    {dynamicTheory && (
+                        <p className="italic border-l-2 border-brand-secondary pl-3 mt-2">{dynamicTheory}</p>
+                    )}
+                    {selectedChordKey.includes('sus') && <p>{theoryText.susChords}</p>}
+                </div>
+            </div>
+        )}
+        
         <div className="mt-4 flex items-center gap-4">
             <button
-              onClick={fetchExplanation}
+              onClick={handleGetExplanation}
               disabled={isLoading}
               className="w-full bg-brand-secondary text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >

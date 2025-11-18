@@ -1,6 +1,7 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { PDF_THEORY_TEXT } from '../constants';
 import ContentDisplay from '../components/ContentDisplay';
 import { getExplanationForTopic } from '../services/geminiService';
 import { parseChord } from '../utils/musicTheory';
@@ -61,8 +62,19 @@ const CircleOfFifths: React.FC = () => {
 const CircleOfFifthsScreen: React.FC = () => {
     const { language, text } = useLanguage();
     const [explanation, setExplanation] = useState('');
+    const [showExplanation, setShowExplanation] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const theoryText = PDF_THEORY_TEXT[language].circleOfFifths;
+
+    const handleGetExplanation = () => {
+        setShowExplanation(true);
+        // AI call disabled
+        /*
+        fetchExplanation();
+        */
+    };
 
     const fetchExplanation = useCallback(async () => {
         setIsLoading(true);
@@ -77,16 +89,30 @@ const CircleOfFifthsScreen: React.FC = () => {
         }
     }, [language]);
 
-    useEffect(() => {
-        fetchExplanation();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [language]);
-
     return (
         <div>
             <h1 className="text-3xl font-bold mb-6 text-white hidden md:block">{text.circleOfFifths}</h1>
             <div className="bg-brand-surface p-6 rounded-lg shadow-lg">
                 <CircleOfFifths />
+                
+                {showExplanation && (
+                    <div className="mt-6 p-4 bg-brand-primary/30 rounded-lg border border-brand-primary space-y-3">
+                        <div className="text-brand-text-muted text-sm space-y-2">
+                            <p>{theoryText.definition}</p>
+                            <p>{theoryText.fifths}</p>
+                            <p>{theoryText.fourths}</p>
+                            <p>{theoryText.family}</p>
+                        </div>
+                    </div>
+                )}
+
+                <button
+                  onClick={handleGetExplanation}
+                  disabled={isLoading}
+                  className="mt-6 w-full bg-brand-secondary text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {text.getExplanation}
+                </button>
             </div>
             <ContentDisplay content={explanation} isLoading={isLoading} error={error} />
         </div>
