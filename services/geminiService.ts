@@ -1,16 +1,26 @@
+
 import { GoogleGenAI, Chat } from "@google/genai";
 import { Language, ChatMessage } from "../types";
 
+// This will hold the initialized client.
 let ai: GoogleGenAI | null = null;
 
 const getAiClient = (): GoogleGenAI => {
-    if (!ai) {
-        // Fix: Per coding guidelines, the API key must be obtained exclusively from `process.env.API_KEY`. This change also resolves the TypeScript error "Property 'env' does not exist on type 'ImportMeta'".
-        if (!process.env.API_KEY) {
-            throw new Error("API Key not found. Please ensure API_KEY is set in your environment.");
-        }
-        ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // If the client is already initialized, return it.
+    if (ai) {
+        return ai;
     }
+
+    // Ensure the API key is available. This is the standard for frontend deployment.
+    // The hosting service (Vercel, Netlify, etc.) will inject this environment variable during the build process.
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+        // This error will be caught by the calling functions and displayed to the user.
+        throw new Error("API_KEY environment variable not found. Please set it in your hosting provider's settings.");
+    }
+
+    // Initialize the AI client with the key from the environment.
+    ai = new GoogleGenAI({ apiKey });
     return ai;
 };
 
@@ -24,15 +34,16 @@ const getModel = () => {
 
 const generateContent = async (prompt: string): Promise<string> => {
     try {
-        const ai = getAiClient();
-        const response = await ai.models.generateContent({
+        const aiClient = getAiClient();
+        const response = await aiClient.models.generateContent({
             model: getModel(),
             contents: prompt,
         });
         return response.text;
     } catch (error) {
         console.error("Error generating content:", error);
-        return "Sorry, I couldn't generate a response. Please check the server connection and API key configuration.";
+        // Return the error message itself so it can be displayed in the UI
+        return error instanceof Error ? error.message : "Sorry, I couldn't generate a response.";
     }
 };
 
@@ -142,11 +153,11 @@ ${commonPromptInstructions(language)}`;
 
 export const getChatResponse = async (history: ChatMessage[], newMessage: string, language: Language): Promise<string> => {
     try {
-        const ai = getAiClient();
+        const aiClient = getAiClient();
         if (!chat || chatLanguage !== language) {
             chatLanguage = language;
             // Start a new chat with the history from the UI
-            chat = ai.chats.create({
+            chat = aiClient.chats.create({
                 model: getModel(),
                 config: {
                     systemInstruction: `You are Sam Deeven’s AI music theory assistant.
@@ -171,7 +182,8 @@ ${commonPromptInstructions(language)}`,
         console.error("Error sending chat message:", error);
         chat = null; 
         chatLanguage = null;
-        return "Sorry, I encountered an error. Please try starting the conversation again.";
+        // Return the error message itself so it can be displayed in the UI
+        return error instanceof Error ? error.message : "Sorry, I encountered an error. Please try starting the conversation again.";
     }
 };
 
