@@ -21,7 +21,7 @@ const ContactScreen: React.FC = () => {
         {
             icon: Instagram,
             label: "Instagram",
-            value: "@samdeeven",
+            value: "sam_d_ven",
             href: "https://www.instagram.com/sam_d_ven/"
         },
     ]
