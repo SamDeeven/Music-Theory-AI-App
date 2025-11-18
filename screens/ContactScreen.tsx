@@ -31,7 +31,7 @@ const ContactScreen: React.FC = () => {
             <h1 className="text-3xl font-bold mb-6 text-white">{text.contact}</h1>
             <div className="bg-brand-surface p-6 rounded-lg shadow-lg">
                 <p className="text-brand-text-muted mb-6 text-center">
-                    Have questions, feedback, or suggestions? Feel free to reach out through any of the channels below. We'd love to hear from you!
+                    Have questions, feedback, or suggestions? Feel free to reach out through any of the channels below. I'd love to hear from you!
                 </p>
                 <div className="max-w-sm mx-auto space-y-4">
                     {contactItems.map(item => (
